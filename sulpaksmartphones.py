@@ -1,0 +1,36 @@
+from bs4 import BeautifulSoup
+import requests
+
+def save():
+    with open('sulpaksmartphones.txt', 'a') as file:
+        file.write(f"Name : {comp['name']}, Price : {comp['price']}, Link : {comp['link']}\n")
+
+def parse():
+    URL = 'https://www.sulpak.kg/f/smartfoniy'
+    HEADERS = {'Accept' : 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+    'User-Agent' : 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36'}
+    
+    response = requests.get(URL, HEADERS, verify=False)
+    soup = BeautifulSoup(response.content, 'html.parser')
+    items = soup.findAll('div', class_ = 'goods-tiles')
+    comps = []
+
+    for item in items:
+        try:
+            comps.append({
+                'name' : item.find('h3', class_ = 'title').get_text(strip=True),
+                'price' : item.find('div', class_ = 'price').get_text(strip=True),
+                'link' : item.find('div', class_ = 'product-container-right-side').get_text(strip=True)
+            })
+        except:
+            pass
+
+    global comp
+    for comp in comps:
+        print (f"Name : {comp['name']}, Price : {comp['price']}, Link : {comp['link']}")
+        save()
+    
+    print (comps)
+
+
+parse()
